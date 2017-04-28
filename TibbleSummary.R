@@ -1,4 +1,5 @@
 library(tidyverse)
+library(broom)
 
 #' Summarises continous data. For grouped tibbles, summary statistics are done
 #' for each group seperately. By default, analyses all numeric variables. You
