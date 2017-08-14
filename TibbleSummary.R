@@ -1,5 +1,6 @@
 library(tidyverse)
 library(broom)
+library(purrrlyr)
 
 #' Summarises continous data. For grouped tibbles, summary statistics are done
 #' for each group seperately. By default, analyses all numeric variables. You
@@ -25,6 +26,47 @@ summarise_numeric <- function(x, ...) {
         ~ tidy(summary(.x)),
         .id = "variable",
         .collate = "rows")
+  }
+}
+
+#' Summarises dates. For grouped tibbles, summary statistics are done
+#' for each group seperately. By default, analyses all numeric variables. You
+#' can select specific variables.
+#'
+#' @param x A tibble.
+#' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
+#'
+#' @return A tibble with the summary.
+summarise_date <- function(x, ...) {
+  vars <- lazyeval::lazy_dots(...)
+  if (!is_empty(vars)) {
+    x <- select_(.data = x, .dots = vars)
+  }
+
+  if (!dplyr::is.grouped_df(x)) {
+    select_if(x, is.Date) %>%
+      map_df(~ tidy(summary(.x)), .id = "variable") %>%
+      # Hack-fix to get back to date format...
+      mutate(minimum = as.Date(minimum, origin = "1970-01-01"),
+             q1 = as.Date(q1, origin = "1970-01-01"),
+             median = as.Date(median, origin = "1970-01-01"),
+             mean = as.Date(mean, origin = "1970-01-01"),
+             q3 = as.Date(q3, origin = "1970-01-01"),
+             maximum = as.Date(maximum, origin = "1970-01-01"))
+  } else {
+    select_if(x, is.Date) %>%
+      by_slice(
+        map_df,
+        ~ tidy(summary(.x)),
+        .id = "variable",
+        .collate = "rows") %>%
+      # Hack-fix to get back to date format...
+      mutate(minimum = as.Date(minimum, origin = "1970-01-01"),
+               q1 = as.Date(q1, origin = "1970-01-01"),
+               median = as.Date(median, origin = "1970-01-01"),
+               mean = as.Date(mean, origin = "1970-01-01"),
+               q3 = as.Date(q3, origin = "1970-01-01"),
+               maximum = as.Date(maximum, origin = "1970-01-01"))
   }
 }
 
@@ -68,7 +110,7 @@ summarise_na <- function(x,
   missingness <- summarise_all(x,
                                funs(sum(is.na(.)))) %>%
     gather(key = "variable", value = "n_missing") %>%
-    mutate("freq_missing" = round(n_missing / n_obs * 100, percentage_digits))
+    mutate("freq_missing" = round(n_missing / n_obs * 100, freq_digits))
 
   if (remove_nonmissing) {
     missingness <- filter(missingness, n_missing > 0)
