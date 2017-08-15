@@ -1,6 +1,5 @@
 library(tidyverse)
 library(broom)
-library(purrrlyr)
 
 #' Summarises continous data. For grouped tibbles, summary statistics are done
 #' for each group seperately. By default, analyses all numeric variables. You
@@ -11,21 +10,24 @@ library(purrrlyr)
 #'
 #' @return A tibble with the summary.
 summarise_numeric <- function(x, ...) {
-  vars <- lazyeval::lazy_dots(...)
-  if (!is_empty(vars)) {
-    x <- select_(.data = x, .dots = vars)
+  dot_vars <- quos(...)
+  if (!is_empty(dot_vars)) {
+    x <- select(x, !!!dot_vars)
   }
 
-  if (!dplyr::is.grouped_df(x)) {
+  if (!is.grouped_df(x)) {
     select_if(x, is.numeric) %>%
-      map_df(~ tidy(summary(.x)), .id = "variable")
+      map_dfr(~ tidy(summary(.x)), .id = "variable")
   } else {
-    select_if(x, is.numeric) %>%
-      by_slice(
-        map_df,
-        ~ tidy(summary(.x)),
-        .id = "variable",
-        .collate = "rows")
+    x %>%
+      select_if(is.numeric) %>%
+      nest() %>%
+      mutate(.out = map(.x = .$data,
+                        .f = map_dfr,
+                        ~ tidy(summary(.x)),
+                        .id = "variable")) %>%
+      select(-data) %>%
+      unnest()
   }
 }
 
@@ -38,14 +40,14 @@ summarise_numeric <- function(x, ...) {
 #'
 #' @return A tibble with the summary.
 summarise_date <- function(x, ...) {
-  vars <- lazyeval::lazy_dots(...)
-  if (!is_empty(vars)) {
-    x <- select_(.data = x, .dots = vars)
+  dot_vars <- quos(...)
+  if (!is_empty(dot_vars)) {
+    x <- select(x, !!!dot_vars)
   }
 
-  if (!dplyr::is.grouped_df(x)) {
+  if (!is.grouped_df(x)) {
     select_if(x, is.Date) %>%
-      map_df(~ tidy(summary(.x)), .id = "variable") %>%
+      map_dfr(~ tidy(summary(.x)), .id = "variable") %>%
       # Hack-fix to get back to date format...
       mutate(minimum = as.Date(minimum, origin = "1970-01-01"),
              q1 = as.Date(q1, origin = "1970-01-01"),
@@ -54,19 +56,22 @@ summarise_date <- function(x, ...) {
              q3 = as.Date(q3, origin = "1970-01-01"),
              maximum = as.Date(maximum, origin = "1970-01-01"))
   } else {
-    select_if(x, is.Date) %>%
-      by_slice(
-        map_df,
-        ~ tidy(summary(.x)),
-        .id = "variable",
-        .collate = "rows") %>%
+    x %>%
+      select_if(is.Date) %>%
+      nest() %>%
+      mutate(.out = map(.x = .$data,
+                        .f = map_dfr,
+                        ~ tidy(summary(.x)),
+                        .id = "variable")) %>%
+      select(-data) %>%
+      unnest() %>%
       # Hack-fix to get back to date format...
       mutate(minimum = as.Date(minimum, origin = "1970-01-01"),
-               q1 = as.Date(q1, origin = "1970-01-01"),
-               median = as.Date(median, origin = "1970-01-01"),
-               mean = as.Date(mean, origin = "1970-01-01"),
-               q3 = as.Date(q3, origin = "1970-01-01"),
-               maximum = as.Date(maximum, origin = "1970-01-01"))
+             q1 = as.Date(q1, origin = "1970-01-01"),
+             median = as.Date(median, origin = "1970-01-01"),
+             mean = as.Date(mean, origin = "1970-01-01"),
+             q3 = as.Date(q3, origin = "1970-01-01"),
+             maximum = as.Date(maximum, origin = "1970-01-01"))
   }
 }
 
@@ -80,8 +85,7 @@ summarise_date <- function(x, ...) {
 #'
 #' @return A tibble with counts and frequencies.
 countfreq <- function(x, ..., sort = FALSE, freq_digits = 1) {
-  vars <- lazyeval::lazy_dots(...)
-  count_(x, vars, sort = sort) %>%
+  count(x, ..., sort = sort) %>%
     mutate("freq" = round(n / sum(n) * 100, freq_digits))
 }
 
@@ -100,9 +104,9 @@ summarise_na <- function(x,
                          sort = TRUE,
                          freq_digits = 1,
                          remove_nonmissing = TRUE) {
-  vars <- lazyeval::lazy_dots(...)
-  if (!is_empty(vars)) {
-    x <- select_(.data = x, .dots = vars)
+  dot_vars <- quos(...)
+  if (!is_empty(dot_vars)) {
+    x <- select(x, !!!dot_vars)
   }
 
   n_obs <- nrow(x)
@@ -110,7 +114,7 @@ summarise_na <- function(x,
   missingness <- summarise_all(x,
                                funs(sum(is.na(.)))) %>%
     gather(key = "variable", value = "n_missing") %>%
-    mutate("freq_missing" = round(n_missing / n_obs * 100, freq_digits))
+    mutate(freq_missing = round(n_missing / n_obs * 100, freq_digits))
 
   if (remove_nonmissing) {
     missingness <- filter(missingness, n_missing > 0)
