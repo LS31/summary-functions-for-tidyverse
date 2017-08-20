@@ -3,7 +3,7 @@ library(broom)
 
 #' Summarises continous data. For grouped tibbles, summary statistics are done
 #' for each group seperately. By default, analyses all numeric variables. You
-#' can select specific variables.
+#' can select specific variables using all syntax avaiable when using dplyr::select.
 #'
 #' @param x A tibble.
 #' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
@@ -33,7 +33,7 @@ summarise_numeric <- function(x, ...) {
 
 #' Summarises dates. For grouped tibbles, summary statistics are done
 #' for each group seperately. By default, analyses all numeric variables. You
-#' can select specific variables.
+#' can select specific variables using all syntax avaiable when using dplyr::select.
 #'
 #' @param x A tibble.
 #' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
@@ -86,12 +86,12 @@ summarise_date <- function(x, ...) {
 #' @return A tibble with counts and frequencies.
 countfreq <- function(x, ..., sort = FALSE, freq_digits = 1) {
   count(x, ..., sort = sort) %>%
-    mutate("freq" = round(n / sum(n) * 100, freq_digits))
+    mutate(freq = round(n / sum(n) * 100, freq_digits))
 }
 
 #' Counts missing observations (NA's) for all variables in a tibble, including
 #' (rounded) frequencies. By default, analyses all numeric variables. You
-#' can select specific variables.
+#' can select specific variables using all syntax avaiable when using dplyr::select.
 #'
 #' @param x A tibble.
 #' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
@@ -114,7 +114,7 @@ summarise_na <- function(x,
   missingness <- summarise_all(x,
                                funs(sum(is.na(.)))) %>%
     gather(key = "variable", value = "n_missing") %>%
-    mutate(freq_missing = round(n_missing / n_obs * 100, freq_digits))
+    mutate("freq_missing" = round(n_missing / n_obs * 100, freq_digits))
 
   if (remove_nonmissing) {
     missingness <- filter(missingness, n_missing > 0)
@@ -125,4 +125,46 @@ summarise_na <- function(x,
   }
 
   missingness
+}
+
+#' Creates a ggplot histogram for multiple numeric variables. By default, analyses all numeric variables. You
+#' can select specific variables using all syntax avaiable when using dplyr::select.
+#'
+#' @param x A tibble.
+#' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
+#'
+#' @return A ggplot.
+multihistogram_numeric <- function(x, ...) {
+  dot_vars <- quos(...)
+    if (!is_empty(dot_vars)) {
+      x <- select(x, !!!dot_vars)
+  }
+
+  x %>%
+    select_if(is.numeric) %>%
+    gather() %>%
+    ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram()
+}
+
+#' Creates a ggplot histogram for multiple Date variables. By default, analyses all Date variables. You
+#' can select specific variables using all syntax avaiable when using dplyr::select.
+#' 
+#' @param x A tibble.
+#' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
+#'
+#' @return A ggplot.
+multihistogram_date <- function(x, ...) {
+  dot_vars <- quos(...)
+  if (!is_empty(dot_vars)) {
+    x <- select(x, !!!dot_vars)
+  }
+
+  x %>%
+    keep(is.Date) %>%
+    gather() %>%
+    ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram()
 }
