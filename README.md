@@ -12,3 +12,12 @@ These are a few simple functions combining the power of dplyr, purrr, and broom 
 * `multihistogram_numeric` is a quick way to create histograms for multiple numeric variables in a tibble. You can select specific variables (like in `dplyr::select`), or select no specific variables at all, in which case all numeric variables are analyzed. It uses `ggplot`'s facets to create a quick grid of multiple histograms.
 
 * `multihistogram_date` is a quick way to create histograms for multiple Date variables in a tibble. You can select specific variables (like in `dplyr::select`), or select no specific variables at all, in which case all Date variables are analyzed. It uses `ggplot`'s facets to create a quick grid of multiple histograms.
+
+# How to install
+
+Tibblesummary is not (yet) available on CRAN. Install devtools. Then use devtools to install tibblesummary directly from GitHub.
+
+```{r}
+install.packages("devtools")
+devtools::install_github("lcs31/tibblesummary")
+```
