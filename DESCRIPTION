@@ -1,0 +1,19 @@
+Package: tibblesummary
+Type: Package
+Title: Summary Functions for the Tidyverse
+Version: 0.1.0
+Author: Lars Steggink <contact@larssteggink.nl>
+Maintainer: Lars Steggink <contact@larssteggink.nl>
+Description: These are simple functions combining the powers of the tidyverse to quickly create summary statistics and summary graphs for multiple variables of a tibble or data frame at once, using the standard selectors available in dplyr.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr,
+    broom,
+    tidyr,
+    ggplot2,
+    purrr,
+    rlang,
+    magrittr,
+    lubridate
+RoxygenNote: 6.0.1
