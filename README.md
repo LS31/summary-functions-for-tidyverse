@@ -19,10 +19,10 @@ Tibblesummary is not (yet) available on CRAN. Install devtools. Then use devtool
 
 ```{r}
 install.packages("devtools")
-devtools::install_github("lcs31/tibblesummary")
+devtools::install_github("ls31/tibblesummary")
 ```
 # How to update
 
 ```{r}
-devtools::install_github("lcs31/tibblesummary")
+devtools::install_github("lc31/tibblesummary")
 ```
