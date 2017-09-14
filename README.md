@@ -1,5 +1,7 @@
 # Quick summary functions for tibbles and data frames
-You want to have a quick first overview of a dataset: (1) run summary functions for all (or selected) continuous and discrete variables, and (2) make histograms of all (or selected) continuous data. This package enables you to do that with the smallest amount of effort/code in R, using the power of the tidyverse. These are a few simple functions combining the power of dplyr, purrr, and broom to quickly create summary statistics for multiple variables of a tibble or data frame, using the standard selectors in dplyr (including `contains("mysubstring")` and `starts_with("myprefix")`, for example).
+You want to have a quick first overview of a dataset: (1) run summary functions for all (or selected) continuous and discrete variables, and (2) make histograms of all (or selected) continuous data. This package enables you to do that with the smallest amount of effort/code in R, using the power of the tidyverse. 
+
+These are a few simple functions combining the power of dplyr, purrr, and broom to quickly create summary statistics for multiple variables of a tibble or data frame, using the standard selectors in dplyr (including `contains("mysubstring")` and `starts_with("myprefix")`, for example).
 
 * `summarise_numeric` summarises continous data. For grouped tibbles, summary statistics are calculated for each group seperately. You can select specific variables (like in `dplyr::select`), or select no specific variables at all, in which case all numeric variables are analyzed.
 
