@@ -35,7 +35,9 @@ summarise_numeric <- function(x, ...) {
   }
 }
 
-#' Summarises dates. For grouped tibbles, summary statistics are done
+#' Summarises dates. 
+#' 
+#' For grouped tibbles, summary statistics are done
 #' for each group seperately. By default, analyses all numeric variables. You
 #' can select specific variables using all syntax avaiable when using dplyr::select.
 #'
