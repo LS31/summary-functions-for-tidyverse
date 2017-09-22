@@ -119,20 +119,41 @@ summarise_na <- function(x,
     x <- dplyr::select(x, !!!dot_vars)
   }
 
-  n_obs <- nrow(x)
-
-  missingness <- dplyr::summarise_all(x,
-                                      dplyr::funs(sum(is.na(.)))) %>%
-    tidyr::gather(key = variable, value = n_missing) %>%
-    dplyr::mutate(freq_missing = round(n_missing / n_obs * 100, freq_digits))
-
+  if (!dplyr::is_grouped_df(x)) {
+    n_obs <- nrow(x)
+    
+    missingness <- 
+      dplyr::summarise_all(x, dplyr::funs(sum(is.na(.)))) %>%
+      tidyr::gather(key = variable, value = n_missing) %>%
+      dplyr::mutate(freq_missing = round(n_missing / n_obs * 100, freq_digits)) %>%
+      tibble::as_tibble()
+    
+    
+    if (sort) {
+      missingness <- dplyr::arrange(missingness, dplyr::desc(n_missing))
+    }
+  } else {
+    keep_group_vars <- groups(x)
+    
+    missingness <- tidyr::nest(x) %>%
+      dplyr::mutate(
+        .out = purrr::map(.x = .$data,
+                          .f = summarise_na)) %>%
+      dplyr::select(-data) %>%
+      tidyr::unnest() %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(!!!keep_group_vars)
+    
+    if (sort) {
+      missingness <- dplyr::arrange(missingness, 
+                                    dplyr::desc(n_missing),
+                                    .by_group = TRUE)
+    }
+  }
+    
   if (remove_nonmissing) {
     missingness <- dplyr::filter(missingness, n_missing > 0)
   }
-
-  if (sort) {
-    missingness <- dplyr::arrange(missingness, dplyr::desc(n_missing))
-  }
-
-  tibble::as_tibble(missingness)
+  
+  missingness
 }
