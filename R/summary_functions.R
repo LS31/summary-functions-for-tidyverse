@@ -16,17 +16,22 @@ summarise_numeric <- function(x, ...) {
 
   if (!dplyr::is_grouped_df(x)) {
     dplyr::select_if(x, is.numeric) %>%
-      purrr::map_dfr(~ broom::tidy(summary(.x)), .id = "variable")
+      purrr::map_dfr(~ broom::tidy(summary(.x)), .id = "variable") %>%
+      tibble::as_tibble()
   } else {
+    keep_group_vars <- groups(x)
     x %>%
       dplyr::select_if(is.numeric) %>%
       tidyr::nest() %>%
-      dplyr::mutate(.out = map(.x = .$data,
-                               .f = purrr::map_dfr,
-                               ~ broom::tidy(summary(.x)),
-                        .id = "variable")) %>%
+      dplyr::mutate(
+        .out = purrr::map(.x = .$data,
+                          .f = purrr::map_dfr,
+                          ~ broom::tidy(summary(.x)),
+                          .id = "variable")) %>%
       dplyr::select(-data) %>%
-      tidyr::unnest()
+      tidyr::unnest() %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(!!!keep_group_vars)
   }
 }
 
@@ -53,17 +58,22 @@ summarise_date <- function(x, ...) {
     dplyr::select_if(x, lubridate::is.instant) %>%
       purrr::map_dfr(~ broom::tidy(summary(.x)),
                      .id = "variable") %>%
-      dplyr::mutate_at(dplyr::vars(-variable), as.POSIXct, origin = "1970-01-01", tz = "UTC")
+      dplyr::mutate_at(dplyr::vars(-variable), as.POSIXct, origin = "1970-01-01", tz = "UTC") %>%
+      tibble::as_tibble()
   } else {
+    keep_group_vars <- groups(x)
     dplyr::select_if(x, lubridate::is.instant) %>%
       tidyr::nest() %>%
-      dplyr::mutate(.out = purrr::map(.x = .$data,
-                                      .f = purrr::map_dfr,
-                                      ~ broom::tidy(summary(.x)),
-                        .id = "variable")) %>%
+      dplyr::mutate(
+        .out = purrr::map(.x = .$data,
+                          .f = purrr::map_dfr,
+                          ~ broom::tidy(summary(.x)),
+                          .id = "variable")) %>%
       dplyr::select(-data) %>%
       tidyr::unnest() %>%
-      dplyr::mutate_if(is.double, as.POSIXct, origin = "1970-01-01", tz = "UTC")
+      dplyr::mutate_if(is.double, as.POSIXct, origin = "1970-01-01", tz = "UTC") %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(!!!keep_group_vars)
   }
 }
 
@@ -111,8 +121,8 @@ summarise_na <- function(x,
 
   missingness <- dplyr::summarise_all(x,
                                       dplyr::funs(sum(is.na(.)))) %>%
-    tidyr::gather(key = "variable", value = "n_missing") %>%
-    dplyr::mutate("freq_missing" = round(n_missing / n_obs * 100, freq_digits))
+    tidyr::gather(key = variable, value = n_missing) %>%
+    dplyr::mutate(freq_missing = round(n_missing / n_obs * 100, freq_digits))
 
   if (remove_nonmissing) {
     missingness <- dplyr::filter(missingness, n_missing > 0)
@@ -122,5 +132,5 @@ summarise_na <- function(x,
     missingness <- dplyr::arrange(missingness, dplyr::desc(n_missing))
   }
 
-  missingness
+  tibble::as_tibble(missingness)
 }
