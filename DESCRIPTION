@@ -1,7 +1,7 @@
 Package: tibblesummary
 Type: Package
 Title: Summary Functions for the Tidyverse
-Version: 0.1.0
+Version: 0.2.0
 Author: Lars Steggink
 Maintainer: Lars Steggink <contact@larssteggink.nl>
 Description: Quickly create summary statistics and summary graphs for multiple variables of a 'tibble' or data frame at once, using combining the powers of the 'tidyverse' and using the standard selectors available in 'dplyr'.
@@ -15,7 +15,8 @@ Imports: dplyr,
     purrr,
     rlang,
     magrittr,
-    lubridate
+    lubridate,
+    tibble
 RoxygenNote: 6.0.1
 URL: https://github.com/LS31/tibblesummary
 BugReports: https://github.com/LS31/tibblesummary/issues

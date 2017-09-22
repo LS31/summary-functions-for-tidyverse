@@ -2,9 +2,7 @@
 % Please edit documentation in R/summary_functions.R
 \name{summarise_date}
 \alias{summarise_date}
-\title{Summarises dates. For grouped tibbles, summary statistics are done
-for each group seperately. By default, analyses all numeric variables. You
-can select specific variables using all syntax avaiable when using dplyr::select.}
+\title{Summarises dates.}
 \usage{
 summarise_date(x, ...)
 }
@@ -17,5 +15,10 @@ summarise_date(x, ...)
 A tibble with the summary.
 }
 \description{
+For grouped tibbles, summary statistics are done
+for each group seperately. By default, analyses all numeric variables. You
+can select specific variables using all syntax avaiable when using dplyr::select.
+}
+\details{
 This selects all variables that are lubridate::is.instant().
 }
