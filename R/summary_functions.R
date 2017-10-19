@@ -3,24 +3,32 @@
 #' For grouped tibbles, summary statistics are done for each group
 #' seperately. By default, analyses all numeric variables. You can
 #' select specific variables using all syntax avaiable when using dplyr::select.
+#' 
+#' As summarising numeric variables usually results in unreadable numbers with 
+#' many decimals, quick rounding is available for your convenience. Note that 
+#' you lose precision by rounding, and that all numeric values are rounded, 
+#' regardless whether the summarized variable was an integer or double 
+#' (e.g. all numbers get 2 decimals, regardless if that makes sense).
 #'
 #' @param x A tibble.
 #' @param ... Comma separated list of unquoted expressions. You can treat variable names like they are positions. Use positive values to select variables; use negative values to drop variables. (This uses dplyr::select.)
+#' @param digits integer indicating the number of decimal places (uses round). Use NA for no rounding.
 #' @return A tibble with the summary.
 #' @export
-summarise_numeric <- function(x, ...) {
+summarise_numeric <- function(x, ..., digits = NA) {
   dot_vars <- rlang::quos(...)
   if (!rlang::is_empty(dot_vars)) {
     x <- dplyr::select(x, !!!dot_vars)
   }
 
   if (!dplyr::is_grouped_df(x)) {
-    dplyr::select_if(x, is.numeric) %>%
+    output <- x %>%
+      dplyr::select_if(is.numeric) %>%
       purrr::map_dfr(~ broom::tidy(summary(.x)), .id = "variable") %>%
       tibble::as_tibble()
   } else {
     keep_group_vars <- groups(x)
-    x %>%
+    output <- x %>%
       dplyr::select_if(is.numeric) %>%
       tidyr::nest() %>%
       dplyr::mutate(
@@ -33,6 +41,15 @@ summarise_numeric <- function(x, ...) {
       tibble::as_tibble() %>%
       dplyr::group_by(!!!keep_group_vars)
   }
+  
+  if (is.numeric(digits)) {
+    output <- output %>%
+      dplyr::mutate_if(.predicate = is.numeric,
+                       .funs = round,
+                       digits = digits)
+  }
+  
+  output
 }
 
 #' Summarises dates. 
