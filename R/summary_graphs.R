@@ -8,6 +8,9 @@
 #' @return A ggplot.
 #' @export
 multihistogram_numeric <- function(x, ...) {
+  .Deprecated(new = "ggstatsplot::gghistostats()", 
+              msg = "The package tibblesummary is no longer maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.")
+  
   dot_vars <- rlang::quos(...)
     if (!rlang::is_empty(dot_vars)) {
       x <- dplyr::select(x, !!!dot_vars)
@@ -30,6 +33,9 @@ multihistogram_numeric <- function(x, ...) {
 #' @return A ggplot.
 #' @export
 multihistogram_date <- function(x, ...) {
+  .Deprecated(new = "ggstatsplot::gghistostats()", 
+              msg = "The package tibblesummary is no longer maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.")
+  
   dot_vars <- rlang::quos(...)
   if (!rlang::is_empty(dot_vars)) {
     x <- dplyr::select(x, !!!dot_vars)

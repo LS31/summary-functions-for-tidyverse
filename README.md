@@ -1,4 +1,10 @@
 # Quick summary functions for tibbles and data frames
+<!-- badges: start -->
+  [![Lifecycle: retired](https://img.shields.io/badge/lifecycle-retired-orange.svg)](https://www.tidyverse.org/lifecycle/#retired)
+<!-- badges: end -->
+
+**At this time, the package is no longer actively maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.**
+
 You want to have a quick first overview of a dataset: (1) run summary functions for all (or selected) continuous and discrete variables, and (2) make histograms of all (or selected) continuous data. This package enables you to do that with the smallest amount of effort/code in R, using the power of the tidyverse. 
 
 These are a few simple functions combining the power of dplyr, purrr, and broom to quickly create summary statistics for multiple variables of a tibble or data frame, using the standard selectors in dplyr (including `contains("mysubstring")` and `starts_with("myprefix")`, for example).
