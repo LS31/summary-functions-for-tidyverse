@@ -16,6 +16,10 @@
 #' @return A tibble with the summary.
 #' @export
 summarise_numeric <- function(x, ..., digits = NA) {
+  .Deprecated(new = "skimr::skim()", 
+              msg = "The package tibblesummary is no longer maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.")
+  
+  
   dot_vars <- rlang::quos(...)
   if (!rlang::is_empty(dot_vars)) {
     x <- dplyr::select(x, !!!dot_vars)
@@ -66,6 +70,9 @@ summarise_numeric <- function(x, ..., digits = NA) {
 #' @return A tibble with the summary.
 #' @export
 summarise_date <- function(x, ...) {
+  .Deprecated(new = "skimr::skim()", 
+              msg = "The package tibblesummary is no longer maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.")
+  
   dot_vars <- rlang::quos(...)
   if (!rlang::is_empty(dot_vars)) {
     x <- dplyr::select(x, !!!dot_vars)
@@ -110,6 +117,10 @@ summarise_date <- function(x, ...) {
 countfreq <- function(x, ...,
                       sort = FALSE,
                       freq_digits = 1) {
+  .Deprecated(new = "janitor::tabyl()", 
+              msg = "The package tibblesummary is no longer maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.")
+  
+  
   dplyr::count(x, ..., sort = sort) %>%
     dplyr::mutate(freq = round(n / sum(n) * 100, freq_digits))
 }
@@ -131,6 +142,9 @@ summarise_na <- function(x,
                          sort = TRUE,
                          freq_digits = 1,
                          remove_nonmissing = TRUE) {
+  .Deprecated(new = "skimr::skim()", 
+              msg = "The package tibblesummary is no longer maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality.")
+  
   dot_vars <- rlang::quos(...)
   if (!rlang::is_empty(dot_vars)) {
     x <- dplyr::select(x, !!!dot_vars)
