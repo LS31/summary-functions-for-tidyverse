@@ -5,11 +5,7 @@ Version: 0.3.0
 Author: Lars Steggink
 Maintainer: Lars Steggink <contact@larssteggink.nl>
 Description: At this time, the package is no longer actively maintained. I would suggest migrating to a combination of the packages janitor, skimr, and ggstatsplot for better, more comprehensive functionality. This packages was designed to quickly create summary statistics and summary graphs for multiple variables of a 'tibble' or data frame at once, using combining the powers of the 'tidyverse' and using the standard selectors available in 'dplyr'.
-<<<<<<< HEAD
 License: MIT + file LICENSE
-=======
-License: MIT
->>>>>>> 0e213959393b9e1826d6c1d03a81f757f7c4acd5
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr,
