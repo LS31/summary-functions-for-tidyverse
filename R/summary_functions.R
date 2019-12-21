@@ -31,7 +31,7 @@ summarise_numeric <- function(x, ..., digits = NA) {
       purrr::map_dfr(~ broom::tidy(summary(.x)), .id = "variable") %>%
       tibble::as_tibble()
   } else {
-    keep_group_vars <- groups(x)
+    keep_group_vars <- dplyr::groups(x)
     output <- x %>%
       dplyr::select_if(is.numeric) %>%
       tidyr::nest() %>%
@@ -87,7 +87,7 @@ summarise_date <- function(x, ...) {
       dplyr::mutate_at(dplyr::vars(-variable), as.POSIXct, origin = "1970-01-01", tz = "UTC") %>%
       tibble::as_tibble()
   } else {
-    keep_group_vars <- groups(x)
+    keep_group_vars <- dplyr::groups(x)
     dplyr::select_if(x, lubridate::is.instant) %>%
       tidyr::nest() %>%
       dplyr::mutate(
@@ -164,7 +164,7 @@ summarise_na <- function(x,
       missingness <- dplyr::arrange(missingness, dplyr::desc(n_missing))
     }
   } else {
-    keep_group_vars <- groups(x)
+    keep_group_vars <- dplyr::groups(x)
     
     missingness <- tidyr::nest(x) %>%
       dplyr::mutate(
